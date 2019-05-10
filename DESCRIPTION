@@ -1,0 +1,21 @@
+Package: Haplotypical
+Type: Package
+Title: Haplotype estimation and summary statistic computation from massively parallel sequencing data
+Version: 0.1
+Date: 2019-04-04
+Author: August Woerner
+Maintainer: August Woerner <August.Woerner@unthsc.edu>
+Description: This package is for basic string manipulation. It is mainly aimed at
+	data from next generation / massively parallel sequencing assays. It can naively
+	estimate haplotypes from bam files, compute summary statistics on the resulting reads
+	as well as performing fast pairwise alignment. Alignment is optimized for DNA sequences
+	that are very close (1 substituion/indel apart), but the KSW2 library of Heng Li
+	(https://github.com/lh3/ksw2) serves to estimate distances when the distance is greater.
+License: GPL (>= 2)
+Imports: 
+		Rcpp (>= 1.0.0),
+		Rsamtools (>= 1.34.1)
+LinkingTo: Rcpp
+SystemRequirements: C++11
+Encoding: UTF-8
+RoxygenNote: 6.1.1

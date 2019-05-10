@@ -1,0 +1,3 @@
+useDynLib(Haplotypical, .registration=TRUE)
+exportPattern("^[[:alpha:]]+")
+importFrom(Rcpp, evalCpp)

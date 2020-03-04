@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cstring>
 #include <vector>
+#include <array>
 
 using namespace Rcpp;
 using namespace std;
@@ -336,7 +337,7 @@ fastCloseHammingPair(std::string &query, std::string &target, bool ignoreHomopol
 //' This function is an optimization of the common case of sequence comparisons
 //' between reads from massively parallel sequencing that are from the same PCR/sequencing assay
 //' in which case the distance between strings is almost always 1.
-//' It optionally ignores homopolymers (e.g., AAAT == AT == distance of 0)
+//' It optionally ignores homopolymers (e.g., AAAT == AT == distance of 0 between)
 //' The size of the indel is returned iff they are separated by an indel.
 //' otherwise -1 is returned
 //' @param query (query sequence)

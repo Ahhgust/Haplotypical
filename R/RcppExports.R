@@ -32,7 +32,7 @@ fastCloseHammingPair <- function(query, target, ignoreHomopolymers = FALSE) {
 #' This function is an optimization of the common case of sequence comparisons
 #' between reads from massively parallel sequencing that are from the same PCR/sequencing assay
 #' in which case the distance between strings is almost always 1.
-#' It optionally ignores homopolymers (e.g., AAAT == AT == distance of 0)
+#' It optionally ignores homopolymers (e.g., AAAT == AT == distance of 0 between)
 #' The size of the indel is returned iff they are separated by an indel.
 #' otherwise -1 is returned
 #' @param query (query sequence)
@@ -176,9 +176,9 @@ ksw2_gg_align <- function(Tseq, Qseq, opPos, ops, sc_mch = 1L, sc_mis = -2L, gap
 #' particular regions.
 #'
 #' @param Tseq (the target sequence; e.g., the reference genome)
-#' @param positions (the positions where the sequence differences are)
-#' @param types (the types of events (0,1,2 for mismatch, deletions and insertions)
-#' @param events (the nucleotides involved with the event)
+#' @param positions (1-based positions where the sequence differences are)
+#' @param types (the types of events (0,1,2 for mismatch, deletions and insertions, respectively)
+#' @param events (the nucleotides involved with the event; ignored if deletion)
 #' @param initBuff (guess as to the final size of the query sequence. Overestimating is better than under)
 #' @export
 seqdiffs2seq <- function(Tseq, positions, types, events, initBuff = -1L) {

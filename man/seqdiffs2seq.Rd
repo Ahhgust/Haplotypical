@@ -9,11 +9,11 @@ seqdiffs2seq(Tseq, positions, types, events, initBuff = -1L)
 \arguments{
 \item{Tseq}{(the target sequence; e.g., the reference genome)}
 
-\item{positions}{(the positions where the sequence differences are)}
+\item{positions}{(1-based positions where the sequence differences are)}
 
-\item{types}{(the types of events (0,1,2 for mismatch, deletions and insertions)}
+\item{types}{(the types of events (0,1,2 for mismatch, deletions and insertions, respectively)}
 
-\item{events}{(the nucleotides involved with the event)}
+\item{events}{(the nucleotides involved with the event; ignored if deletion)}
 
 \item{initBuff}{(guess as to the final size of the query sequence. Overestimating is better than under)}
 }

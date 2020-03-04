@@ -587,9 +587,9 @@ ksw2_gg_align(std::string Tseq,
 //' particular regions.
 //'
 //' @param Tseq (the target sequence; e.g., the reference genome)
-//' @param positions (the positions where the sequence differences are)
-//' @param types (the types of events (0,1,2 for mismatch, deletions and insertions)
-//' @param events (the nucleotides involved with the event)
+//' @param positions (1-based positions where the sequence differences are)
+//' @param types (the types of events (0,1,2 for mismatch, deletions and insertions, respectively)
+//' @param events (the nucleotides involved with the event; ignored if deletion)
 //' @param initBuff (guess as to the final size of the query sequence. Overestimating is better than under)
 //' @export
 // [[Rcpp::export]]
@@ -601,17 +601,19 @@ seqdiffs2seq(std::string Tseq,
              int initBuff=-1) {
 
 
+  
+  int nEvents = positions.size();
+  if (nEvents==0) // optimize for exact matching...
+    return Tseq;
+  
   // guess how big the output string will be...
   int i;
   if (initBuff < 1)
     initBuff = Tseq.size() + (int)(Tseq.size()*0.3) + 100;
 
   // and make a nul string of that size
+  // the query is a reconstruction of the query sequence (that generated the alignment ops)
   std::string query(initBuff, '\0');
-
-  int nEvents = positions.size();
-  if (nEvents==0) // optimize for exact matching...
-    return Tseq;
 
   char eventCode;
   int eventPos;
@@ -623,22 +625,38 @@ seqdiffs2seq(std::string Tseq,
   const char* tseq = Tseq.c_str();
   const char* tseqHead = tseq;
 
-  for(i=0; i < nEvents; ++i) {
+  // handle the case of insertions PRIOR to the first base separately!
+  i = 0;
+  if (positions[0]==0) {
+    if (types[0] == 3) {
+      event = events[0];
+      query.replace(queryIndex, event.size(), event);
+      queryIndex += event.size();
+    } else {
+     Rcerr << "Non-insertion event occurring before the start of the string... cannot be!\n"; 
+    }
+    ++i;
+  }
+  
+  for(; i < nEvents; ++i) {
     eventPos = positions[i]-1; // convert back to 0-based indexing...
-
-
+    
     eventCode = 'X'; // mismatch
     if (types[i]==2)
       eventCode= 'D';
-    else if (types[i] == 3)
+    else if (types[i] == 3) {
       eventCode='I';
-
+      ++eventPos; // the index of insertions is tricky.
+      // the position refers to the base *after* which the insertion occurs
+      // position[0] == 0 -> eventPos==-1; gets changed back to a
+    }
+    
     event = events[i];
 
     // fill in the string for all bases prior to the variation
     if (previousPos < eventPos-1) {
       int prevMatches = eventPos - previousPos - 1;
-      query.replace(queryIndex, prevMatches, tseq);
+     query.replace(queryIndex, prevMatches, tseq);
       tseq += prevMatches;
       queryIndex += prevMatches;
     }
@@ -646,8 +664,8 @@ seqdiffs2seq(std::string Tseq,
     // and then fill in the string for all bases of the event
     if (eventCode == 'X') {
       query.replace(queryIndex, 1, event);
-      tseq += 1;
-      queryIndex += 1;
+      ++tseq;
+      ++queryIndex;
     } else if (eventCode == 'D') { // deletion in the query...
       tseq += event.size(); // by construction these are 1 unit long... but just to be safe.
     } else { // bases inserted
@@ -655,7 +673,7 @@ seqdiffs2seq(std::string Tseq,
       queryIndex += event.size();
     }
 
-    previousPos = eventPos;
+    previousPos = positions[i]-1;
   }
  // record the bases *after* the last mutational event
   int basesRemaining = Tseq.size() - (tseq-tseqHead);

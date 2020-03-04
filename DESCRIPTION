@@ -12,9 +12,13 @@ Description: This package is for basic string manipulation. It is mainly aimed a
 	that are very close (1 substituion/indel apart), but the KSW2 library of Heng Li
 	(https://github.com/lh3/ksw2) serves to estimate distances when the distance is greater.
 License: GPL (>= 2)
+biocViews:
 Imports: 
 		Rcpp (>= 1.0.0),
-		Rsamtools (>= 1.34.1)
+		Rsamtools (>= 1.34.1),
+		seqinr,
+		readr,
+		tibble
 LinkingTo: Rcpp
 SystemRequirements: C++11
 Encoding: UTF-8

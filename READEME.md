@@ -1,5 +1,5 @@
 
-# STRair Razor 4.0
+# STRait Razor 4.0
 
 ### Documentation
 This is a prototype of STRait Razor 4.0! Use at your own risk! <br>

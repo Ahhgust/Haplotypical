@@ -4,8 +4,17 @@
 \alias{estimateHaplotypes}
 \title{Alignment-assisted STRait Razor in R}
 \usage{
-estimateHaplotypes(seqs, cigars, seqStarts, qWidths, strands, starts,
-  stops, regionStart, regionStop)
+estimateHaplotypes(
+  seqs,
+  cigars,
+  seqStarts,
+  qWidths,
+  strands,
+  starts,
+  stops,
+  regionStart,
+  regionStop
+)
 }
 \arguments{
 \item{seqs}{(query sequences)}
@@ -15,6 +24,8 @@ estimateHaplotypes(seqs, cigars, seqStarts, qWidths, strands, starts,
 \item{seqStarts}{(the base position in 1-based indexing of the first base in the alignment)}
 
 \item{qWidths}{(the size or width of the alignment in the reference genome)}
+
+\item{strands}{(the size or width of the alignment in the reference genome)}
 
 \item{starts}{(of the regions you're intersted in, the 0-based start coordinate)}
 

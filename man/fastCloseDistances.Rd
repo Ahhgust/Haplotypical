@@ -11,6 +11,8 @@ fastCloseDistances(query, seqs, result, ignoreHomopolymers = FALSE)
 
 \item{seqs}{(target sequences)}
 
+\item{result}{(distance between seqs)}
+
 \item{ignoreHomopolymers}{(consecutive sequences of the same letter is treated as just 1 instance of that letter)}
 }
 \description{

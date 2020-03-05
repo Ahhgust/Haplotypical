@@ -4,8 +4,17 @@
 \alias{ksw2_gg_align}
 \title{Global pairwise alignment from the ksw2 library}
 \usage{
-ksw2_gg_align(Tseq, Qseq, opPos, ops, sc_mch = 1L, sc_mis = -2L,
-  gapo = 2L, gape = 1L, extended = TRUE)
+ksw2_gg_align(
+  Tseq,
+  Qseq,
+  opPos,
+  ops,
+  sc_mch = 1L,
+  sc_mis = -2L,
+  gapo = 2L,
+  gape = 1L,
+  extended = TRUE
+)
 }
 \arguments{
 \item{Tseq}{(a string from the DNA alphabet; this is your target)}

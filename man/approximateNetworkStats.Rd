@@ -4,8 +4,14 @@
 \alias{approximateNetworkStats}
 \title{A heuristic to estimate some network properties of PCR amplified sequences}
 \usage{
-approximateNetworkStats(seqs, counts, leafStats, degree,
-  minCoverage = 10L, ignoreHomopolymers = FALSE)
+approximateNetworkStats(
+  seqs,
+  counts,
+  leafStats,
+  degree,
+  minCoverage = 10L,
+  ignoreHomopolymers = FALSE
+)
 }
 \arguments{
 \item{seqs}{(these are unique sequences found at some loci)}
@@ -15,6 +21,8 @@ approximateNetworkStats(seqs, counts, leafStats, degree,
 \item{leafStats}{(leaf indexes-- see description. This parallel to seqs}
 
 \item{degree}{(same structure as leafStats, but estimates the degree of each allele)}
+
+\item{minCoverage}{(smallest number of read-counts to consider)}
 
 \item{ignoreHomopolymers}{(consecutive sequences of the same letter is treated as just 1 instance of that letter)}
 }

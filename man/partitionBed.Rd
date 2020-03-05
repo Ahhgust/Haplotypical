@@ -9,15 +9,15 @@ partitionBed(chromsQ, qStarts, qStops, chromsT, tStarts, tStops)
 \arguments{
 \item{chromsQ}{(query chromosome)}
 
+\item{qStarts}{(query start coordinate. 0-based indexing)}
+
+\item{qStops}{(query stop coordinate. 1-based indexing)}
+
 \item{chromsT}{(target chromosome)}
 
-\item{qStart}{(query start coordinate. 0-based indexing)}
+\item{tStarts}{(target start coordinate. 0-based indexing)}
 
-\item{qStop}{(query stop coordinate. 1-based indexing)}
-
-\item{tStart}{(target start coordinate. 0-based indexing)}
-
-\item{tStop}{(target stop coordinate. 1-based indexing)}
+\item{tStops}{(target stop coordinate. 1-based indexing)}
 }
 \description{
 This function takes two genomic intervals: one for a query (Q)

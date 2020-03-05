@@ -438,8 +438,10 @@ fastCloseIndelPair(std::string &query, std::string &target, bool ignoreHomopolym
 //' and may use short circuit evaluation when the distance is >= 3
 //' It optionally ignores homopolymers (e.g., AAAT == AT == distance of 0)
 //' this version is vectorized (on seqs)
+//' 
 //' @param query (query sequence)
 //' @param seqs (target sequences)
+//' @param result (distance between seqs)
 //' @param ignoreHomopolymers (consecutive sequences of the same letter is treated as just 1 instance of that letter)
 //' @export
 // [[Rcpp::export]]
@@ -495,6 +497,7 @@ bool ignoreHomopolymers=false) {
 //' @param counts (parallel array to seqs; the number of times a particular allele was observed)
 //' @param leafStats (leaf indexes-- see description. This parallel to seqs
 //' @param degree (same structure as leafStats, but estimates the degree of each allele)
+//' @param minCoverage (smallest number of read-counts to consider)
 //' @param ignoreHomopolymers (consecutive sequences of the same letter is treated as just 1 instance of that letter)
 //' @export
 // [[Rcpp::export]]
@@ -614,6 +617,7 @@ approximateNetworkStats(
 //' @param cigars (query cigar operations (as per the Bam file format))
 //' @param seqStarts (the base position in 1-based indexing of the first base in the alignment)
 //' @param qWidths (the size or width of the alignment in the reference genome)
+//' @param strands (the size or width of the alignment in the reference genome)
 //' @param starts (of the regions you're intersted in, the 0-based start coordinate)
 //' @param stops (of the regions you're intersted in, the 1-based stop coordinate)
 //' @param regionStart (currently ignored; specifies the amplicon start/stop)
@@ -790,11 +794,12 @@ isSubregion(const Region &target, const Region &query) {
 //' This can be useful for associating a set of SNPs, say, with the amplicons in which they
 //' arose.
 //' @param chromsQ (query chromosome)
-//' @param qStart (query start coordinate. 0-based indexing)
-//' @param qStop (query stop coordinate. 1-based indexing)
+//' @param qStarts (query start coordinate. 0-based indexing)
+//' @param qStops (query stop coordinate. 1-based indexing)
 //' @param chromsT (target chromosome)
-//' @param tStart (target start coordinate. 0-based indexing)
-//' @param tStop (target stop coordinate. 1-based indexing)
+//' @param tStarts (target start coordinate. 0-based indexing)
+//' @param tStops (target stop coordinate. 1-based indexing)
+//' 
 //' @export
 // [[Rcpp::export]]
 DataFrame

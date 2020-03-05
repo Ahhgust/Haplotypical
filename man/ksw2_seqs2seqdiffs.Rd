@@ -4,8 +4,7 @@
 \alias{ksw2_seqs2seqdiffs}
 \title{Generates a diff between two sequences.}
 \usage{
-ksw2_seqs2seqdiffs(Tseq, Qseq, sc_mch = 1L, sc_mis = -2L, gapo = 2L,
-  gape = 1L)
+ksw2_seqs2seqdiffs(Tseq, Qseq, sc_mch = 1L, sc_mis = -2L, gapo = 2L, gape = 1L)
 }
 \arguments{
 \item{Tseq}{(the target sequence; e.g., the reference genome)}

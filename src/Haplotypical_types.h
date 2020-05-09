@@ -104,4 +104,7 @@ public:
 	std::string origString;
 };
 
+
+
+
 #endif

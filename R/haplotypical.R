@@ -161,7 +161,7 @@ haplotypeHelper <- function(bam, b, e) {
 #' @param b (begin coordinate (vector))
 #' @param e (end coordinate (vector))
 #' @param bamFilename (the name of the bam file)
-#' @param bed (are the locus in BED format (0-based b, 1-based e). If set to FALSE 1-based indexing is assumed)
+#' @param bed (are the locus in BED format (0-based b, 1-based e)? If set to FALSE 1-based indexing is assumed)
 #' @param makedf (when FALSE, returns a list; each element corresponds to each locus; otherwise it returns a tibble) 
 #' @param mapqFilter (minimum mapping quality to consider...)
 #' @param ... (additional arguments passed to ScanBamParam)
@@ -207,6 +207,59 @@ bedBamAndBeyond <- function(bedFile, bamFile, ...) {
                           ...
                           ) -> hapPiles
   return(hapPiles)
+}
+
+
+# TODO: Come back to this! Allow for indels in the NN
+makeGraphAndAdjustPositions <- function(alleles, diffPos, diffTypes) {
+  
+  # 2 => insertion; all subsequent positions must be +1
+  # 3 => deletion; all subsequent positions must
+#  adj <- c(0,1,-1)
+ # posAdj <- adj[ diffTypes ]
+  
+
+  tib <- tibble::tibble(All=alleles, Pos=diffPos, Types=diffTypes)
+  
+  dplyr::arrange(tib, Pos, Types) %>%
+    dplyr::group_by(Pos) %>%
+    dplyr::mutate(Rank=dplyr::row_number()) %>% 
+    dplyr::ungroup() -> foo 
+    
+  forRefMod <- dplyr::filter(foo, Rank==1) # used to construct the modified reference sequence
+  forGraph <-  dplyr::filter(foo, Rank>1) # used in the graph to represent differences...
+  
+  tib %>%
+    dplyr::mutate(Adj=
+               dplyr::case_when(
+                 diffTypes == 1 ~ 0,  # substitution
+                 diffTypes == 2 ~ 1,  # insertion
+                 diffTypes == 3 ~ -1, # deletion
+                 TRUE           ~ -99999
+               ),
+               CumAdj=base::cumsum(Adj),
+               PosAdj=Pos + CumAdj
+             ) -> foo
+  
+  return(foo$PosAdj)
+}
+
+testAlignments <- function() {
+  
+  ref <- "AAAACCCCCTCCCCATG" #16180 in rCRS
+  diffTypes <- c(1,1,1,3)
+  diffAlleles <- c("C","T","C", "-")
+  diffPos <- c(4,9,10,14)
+  
+  graphy <- makeSequenceGraph(ref, diffAlleles, diffPos, diffTypes)
+  
+  getSequenceGraphEditDistance(
+    alignSequenceGraph(graphy,
+                       "AAACCCCCTCCCCATG"
+                       )
+  )
+
+  
 }
 
 

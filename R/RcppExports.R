@@ -9,6 +9,44 @@
 #' (e.g., insertions that are polymorphic in populations and not found in the queried string)
 NULL
 
+#' Search a Hamming graph
+#'
+#' Returns vector of graph distances 
+#' in particular, the distance of each sequence (toCompare)
+#' to the graph using the Hamming distance
+#' 
+#'
+#' @param hammingGraph (string (singular) from makeSequenceHammingGraph)
+#' @param toCompare (vector of strings; must be over set {ACGT})
+#' @param maxDist (set to <0 if no bound; otherwise the computation halts when maxDist differences found) 
+#' 
+#' @export
+fastBoundedHammingGraphDist <- function(hammingGraph, toCompare, maxDist) {
+    .Call(`_Haplotypical_fastBoundedHammingGraphDist`, hammingGraph, toCompare, maxDist)
+}
+
+#' Make a Hamming graph
+#'
+#' 
+#' Conceptually, it takes a reference sequence and adds IUPAC
+#' codes to it where substitutions occur
+#' 
+#' diffAllele encodes the sequence differences
+#' and
+#' positions give the index of the position
+#' 
+#' The actual encoding uses bit-operations instead, but the take-home is the same
+#' Queries are then allowed to match any of the letters in the IUPAC encoding 
+#'
+#' @param refRS (The reference sequence)
+#' @param diffAllele (vector of strings; must contain only single nucleotides)
+#' @param positions (vector if integers; must contain the positions)
+#' 
+#' @export
+makeSequenceHammingGraph <- function(refRS, diffAllele, positions) {
+    .Call(`_Haplotypical_makeSequenceHammingGraph`, refRS, diffAllele, positions)
+}
+
 #' Naive and fast Hamming distance (max dist of 2)
 #' 
 #' This function computes a naive (and fast)
@@ -145,6 +183,51 @@ estimateHaplotypes <- function(seqs, cigars, seqStarts, qWidths, strands, starts
 #' @export
 partitionBed <- function(chromsQ, qStarts, qStops, chromsT, tStarts, tStops) {
     .Call(`_Haplotypical_partitionBed`, chromsQ, qStarts, qStops, chromsT, tStarts, tStops)
+}
+
+#' Given a description of the variants in a mixture, will generate a graph for use with later analysis.
+#' 
+#' @param refRS The reference sequence.
+#' @param diffAllele The variant alleles for each difference.
+#' @param position The positions in the reference: one based. Multiple events can be specified at a location.
+#' @param etype The type of each event. Zero for replacement, one for insert, two for delete.
+#' @return An opaque object for use with other methods in this package.
+makeSequenceGraph <- function(refRS, diffAllele, position, etype) {
+    .Call(`_Haplotypical_makeSequenceGraph`, refRS, diffAllele, position, etype)
+}
+
+#' Get the alignment table from a sequence to a graph.
+#' 
+#' @param sgrap The sequence graph in question.
+#' @param query The sequence to align.
+#' @return The alignment table.
+alignSequenceGraph <- function(sgrap, query) {
+    .Call(`_Haplotypical_alignSequenceGraph`, sgrap, query)
+}
+
+#' Get the edit distance from a sequence to a graph.
+#' 
+#' @param alnTable The result of the alignment.
+#' @return The edit distance between the graph and the query.
+getSequenceGraphEditDistance <- function(alnTable) {
+    .Call(`_Haplotypical_getSequenceGraphEditDistance`, alnTable)
+}
+
+#' Note which nodes of the graph were not visited in an alignment.
+#' 
+#' @param sgrap The original graph.
+#' @param alnTable The result of the alignment.
+#' @return The nodes of the graph which were not visited.
+getAlignmentMissedNodes <- function(sgrap, alnTable) {
+    .Call(`_Haplotypical_getAlignmentMissedNodes`, sgrap, alnTable)
+}
+
+#' Prepare a string representation of the graph.
+#' 
+#' @param sgrap The sequence graph in question.
+#' @return A string representation of the graph.
+graphToString <- function(sgrap) {
+    .Call(`_Haplotypical_graphToString`, sgrap)
 }
 
 #' Global pairwise alignment from the ksw2 library

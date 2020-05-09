@@ -1,4 +1,3 @@
-//To split into a header file
 
 #include "Haplotypical_types.h"
 
@@ -276,6 +275,8 @@ void getAllForwardWithEpsilon(std::vector<BuildGraphNode>* allNodes, uintptr_t f
 #define EVENT_TYPE_INSERT 2
 #define EVENT_TYPE_DELETE 3
 
+
+
 /**
  * Compare two events.
  * @param coma The first thing to compare.
@@ -285,6 +286,8 @@ void getAllForwardWithEpsilon(std::vector<BuildGraphNode>* allNodes, uintptr_t f
 bool eventCompare(const EventInfo& coma, const EventInfo& comb){
 	return coma.position < comb.position;
 }
+
+
 
 //' Given a description of the variants in a mixture, will generate a graph for use with later analysis.
 //' 

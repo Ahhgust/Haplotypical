@@ -22,6 +22,120 @@ using namespace std;
 
 // [[Rcpp::plugins(cpp11)]]
 
+// helper function. should use a LUT, but this may be fast enough...
+// each character gets its own bit
+inline char
+getEncoding(const char c) {
+  if (c == 'A')
+    return 0x1;
+  if (c == 'C')
+    return 0x2;
+  if (c == 'G')
+    return 0x4;
+  if (c == 'T')
+    return 0x8;
+  return 0x10;
+}
+
+//' Search a Hamming graph
+//'
+//' Returns vector of graph distances 
+//' in particular, the distance of each sequence (toCompare)
+//' to the graph using the Hamming distance
+//' 
+//'
+//' @param hammingGraph (string (singular) from makeSequenceHammingGraph)
+//' @param toCompare (vector of strings; must be over set {ACGT})
+//' @param maxDist (set to <0 if no bound; otherwise the computation halts when maxDist differences found) 
+//' 
+//' @export
+// [[Rcpp::export]]
+Rcpp::IntegerVector
+fastBoundedHammingGraphDist(Rcpp::String hammingGraph, Rcpp::StringVector toCompare, int maxDist) {
+  
+  int d, nSeqs = toCompare.size();
+  IntegerVector dists( nSeqs );
+  const char *c, *ref;
+  std::string refGraph = hammingGraph;
+  
+  if (maxDist < 0)
+    maxDist = refGraph.size()+1;
+  
+  char b;
+  
+  for (int i = 0; i < nSeqs; ++i) {
+    std::string foo = as<std::string>(toCompare[i]);
+    d=0; // distance so far...
+    c = foo.c_str();
+    ref = refGraph.c_str();
+    while (*c) {
+      b = getEncoding(*c);
+      
+      // no bits (characters) in common
+      if ( (b & *ref) == 0) {
+        ++d;
+        if (d >= maxDist)
+          break;
+      }
+      
+      ++c;
+      ++ref;
+    }
+    dists[i] = d;
+    
+  }
+  
+  return dists;
+}
+
+
+//' Make a Hamming graph
+//'
+//' 
+//' Conceptually, it takes a reference sequence and adds IUPAC
+//' codes to it where substitutions occur
+//' 
+//' diffAllele encodes the sequence differences
+//' and
+//' positions give the index of the position
+//' 
+//' The actual encoding uses bit-operations instead, but the take-home is the same
+//' Queries are then allowed to match any of the letters in the IUPAC encoding 
+//'
+//' @param refRS (The reference sequence)
+//' @param diffAllele (vector of strings; must contain only single nucleotides)
+//' @param positions (vector if integers; must contain the positions)
+//' 
+//' @export
+// [[Rcpp::export]]
+Rcpp::String
+makeSequenceHammingGraph(Rcpp::String refRS, Rcpp::StringVector diffAllele, Rcpp::IntegerVector positions){
+  std::string refString = refRS;
+  const char *ref = refString.c_str();
+  
+  std::string toString(refString.size(), '\0');
+  
+  unsigned i=0;
+  while (*ref) { // convert the character string into a bit-wise encoding
+    char b = getEncoding(*ref);
+    toString[i] = b;
+    ++ref;
+    ++i;
+  }  
+  
+  // augment; add bits to each position with an "or"
+  for ( i=0; i < diffAllele.size(); ++i) {
+     char b = getEncoding(diffAllele[i][0]);
+     int j = positions[i]-1; // 1- to 0-based conversion
+     toString[j] |= b;
+  }
+  
+  
+  return toString;
+}
+  
+
+
 class Haplotype
 {
 
@@ -311,14 +425,15 @@ fastCloseHammingPair(std::string &query, std::string &target, bool ignoreHomopol
     }
     
   }
-  
+  // all of q not consumed, while t is
+  // subsequent bases in q are mismatches
   while (*q && diffs <= 2) {
-    if (!ignoreHomopolymers || *q != *(q-1)) {
+    if (!ignoreHomopolymers || *q != *(q-1)) { // keeping in mind that we don't count mismatches iff we're ignore homopolymers 
       ++diffs;
     }
     ++q;
   }
-  
+  // and the reverse case; q consumed, t not consumed...
   while (*t && diffs <= 2) {
     if (!ignoreHomopolymers || *t != *(t-1)) {
       ++diffs;

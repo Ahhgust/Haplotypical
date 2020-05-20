@@ -13,8 +13,10 @@ NULL
 #'
 #' This takes a vector of UMIs and counts ; these must be sorted in descending order
 #' It traverses the UMIs, and gives the index (1-based) for any UMI in which there is another
-#' UMI that is more (or equally) abundant AND 1 nucleotide apart
+#' UMI that is of greater (or equally) abundance AND 1 nucleotide apart
 #' Values of 0 correspond to no UMI that is more abundant and 1 nuc separated.
+#' 
+#' The current implementation is quadratic wrt to the number of UMIs... so beware!
 #'  
 #'
 #' @param umis (vector of strings (UMI sequences))

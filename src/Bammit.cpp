@@ -24,8 +24,10 @@ using namespace std;
 //'
 //' This takes a vector of UMIs and counts ; these must be sorted in descending order
 //' It traverses the UMIs, and gives the index (1-based) for any UMI in which there is another
-//' UMI that is more (or equally) abundant AND 1 nucleotide apart
+//' UMI that is of greater (or equally) abundance AND 1 nucleotide apart
 //' Values of 0 correspond to no UMI that is more abundant and 1 nuc separated.
+//' 
+//' The current implementation is quadratic wrt to the number of UMIs... so beware!
 //'  
 //'
 //' @param umis (vector of strings (UMI sequences))
@@ -37,13 +39,18 @@ using namespace std;
 Rcpp::IntegerVector
 fastBoundedHammingRange1NN(Rcpp::StringVector umis, Rcpp::IntegerVector counts, int tolerance=0) {
   int c, nSeqs = umis.size();
-  IntegerVector dists( nSeqs );  
+  
+  if (nSeqs != counts.size())
+    throw Rcpp::exception("Input vector sizes do not match.");
+
   if (nSeqs==0)
-    return dists;
+    return NULL;
+  
+    
+  IntegerVector dists( nSeqs );  
 
   dists[0]=0;
   const char *s1, *s2;
-  
   
   for (int i = 1; i < nSeqs; ++i) {
     c = counts[i];

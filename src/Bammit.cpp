@@ -20,6 +20,82 @@ using namespace std;
 #define DELIM ";"
 
 
+//' Quick UMI NN search
+//'
+//' This takes a vector of UMIs and counts ; these must be sorted in descending order
+//' It traverses the UMIs, and gives the index (1-based) for any UMI in which there is another
+//' UMI that is more (or equally) abundant AND 1 nucleotide apart
+//' Values of 0 correspond to no UMI that is more abundant and 1 nuc separated.
+//'  
+//'
+//' @param umis (vector of strings (UMI sequences))
+//' @param counts (parallel vector of counts;the $ of times (reads) that the UMI was observed in)
+//' @param tolerance (when 0, equal or more abundant is the criterion; l allows for "equal" to include 1-less)
+//' 
+//' @export
+// [[Rcpp::export]]
+Rcpp::IntegerVector
+fastBoundedHammingRange1NN(Rcpp::StringVector umis, Rcpp::IntegerVector counts, int tolerance=0) {
+  int c, nSeqs = umis.size();
+  IntegerVector dists( nSeqs );  
+  if (nSeqs==0)
+    return dists;
+
+  dists[0]=0;
+  const char *s1, *s2;
+  
+  
+  for (int i = 1; i < nSeqs; ++i) {
+    c = counts[i];
+    std::string q = as<std::string>(umis[i]);
+    
+    if (dists[i] != 0)
+      continue;
+    
+    for (int j = 0; j < nSeqs; ++j) {
+      
+      if (counts[j] < c-tolerance)
+        break;
+      
+      if (i==j)
+        continue;
+      
+      s1 = q.c_str();
+      std::string q2 = as<std::string>(umis[j]);
+      s2 = q2.c_str();
+      
+      // are the two seqs 1 difference apart?
+      unsigned nDiff=0;
+      while (*s1 && *s2) {
+        if (*s1 != *s2) {
+          ++nDiff;
+          if (nDiff > 1)
+            break;  
+        }
+        ++s1;
+        ++s2;
+      }
+      
+      if (*s1 || *s2)
+        ++nDiff;
+      
+      if (nDiff==1) {
+        dists[i] = j + 1; // give the 1-based index of the sequence that has a higher (or equal) count AND is 1-base apart.
+        if (counts[j] == c && dists[j] == 0)
+          dists[j] = i + 1;
+        break;
+      }
+    }
+      
+      
+    
+  }
+  
+      
+  return dists;
+}
+
+
 // [[Rcpp::plugins(cpp11)]]
 
 // helper function. should use a LUT, but this may be fast enough...

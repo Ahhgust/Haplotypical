@@ -9,6 +9,23 @@
 #' (e.g., insertions that are polymorphic in populations and not found in the queried string)
 NULL
 
+#' Quick UMI NN search
+#'
+#' This takes a vector of UMIs and counts ; these must be sorted in descending order
+#' It traverses the UMIs, and gives the index (1-based) for any UMI in which there is another
+#' UMI that is more (or equally) abundant AND 1 nucleotide apart
+#' Values of 0 correspond to no UMI that is more abundant and 1 nuc separated.
+#'  
+#'
+#' @param umis (vector of strings (UMI sequences))
+#' @param counts (parallel vector of counts;the $ of times (reads) that the UMI was observed in)
+#' @param tolerance (when 0, equal or more abundant is the criterion; l allows for "equal" to include 1-less)
+#' 
+#' @export
+fastBoundedHammingRange1NN <- function(umis, counts, tolerance = 0L) {
+    .Call(`_Haplotypical_fastBoundedHammingRange1NN`, umis, counts, tolerance)
+}
+
 #' Search a Hamming graph
 #'
 #' Returns vector of graph distances 

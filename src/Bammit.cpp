@@ -44,7 +44,7 @@ fastBoundedHammingRange1NN(Rcpp::StringVector umis, Rcpp::IntegerVector counts, 
     throw Rcpp::exception("Input vector sizes do not match.");
 
   if (nSeqs==0)
-    return NULL;
+    return R_NilValue;
   
     
   IntegerVector dists( nSeqs );  

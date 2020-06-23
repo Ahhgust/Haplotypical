@@ -78,8 +78,8 @@ getReferenceSubstring <- function(s, chrom, b, e, bed=TRUE) {
      seqs[[i]] <- seqinr::c2s( seqinr::getFrag(s[[ chrom[[i]] ]], b[[i]], e[[i]], as.string=TRUE) )
    }
   }
-  return(seqs)
   
+  return(seqs)
 }
 
 #' Generates a single-locus haplotypes
@@ -209,7 +209,7 @@ bedBamAndBeyond <- function(bedFile, bamFile, ...) {
   return(hapPiles)
 }
 
-
+# @importFrom magrittr %>%
 # TODO: Come back to this! Allow for indels in the NN
 makeGraphAndAdjustPositions <- function(alleles, diffPos, diffTypes) {
   

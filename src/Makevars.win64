@@ -1,2 +1,2 @@
-CXX_STD = CXX11 # Required for C++11
-USE_CXX11 = yes
+CXX = g++ 
+CXX11STD = -std=c++11

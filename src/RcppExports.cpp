@@ -19,6 +19,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// fastMixtureBoundedHammingGraphDist
+Rcpp::List fastMixtureBoundedHammingGraphDist(Rcpp::String hammingGraph, Rcpp::StringVector haplotypes, int nInMix);
+RcppExport SEXP _Haplotypical_fastMixtureBoundedHammingGraphDist(SEXP hammingGraphSEXP, SEXP haplotypesSEXP, SEXP nInMixSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::String >::type hammingGraph(hammingGraphSEXP);
+    Rcpp::traits::input_parameter< Rcpp::StringVector >::type haplotypes(haplotypesSEXP);
+    Rcpp::traits::input_parameter< int >::type nInMix(nInMixSEXP);
+    rcpp_result_gen = Rcpp::wrap(fastMixtureBoundedHammingGraphDist(hammingGraph, haplotypes, nInMix));
+    return rcpp_result_gen;
+END_RCPP
+}
 // fastBoundedHammingGraphDist
 Rcpp::IntegerVector fastBoundedHammingGraphDist(Rcpp::String hammingGraph, Rcpp::StringVector toCompare, int maxDist);
 RcppExport SEXP _Haplotypical_fastBoundedHammingGraphDist(SEXP hammingGraphSEXP, SEXP toCompareSEXP, SEXP maxDistSEXP) {
@@ -249,6 +262,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_Haplotypical_fastBoundedHammingRange1NN", (DL_FUNC) &_Haplotypical_fastBoundedHammingRange1NN, 3},
+    {"_Haplotypical_fastMixtureBoundedHammingGraphDist", (DL_FUNC) &_Haplotypical_fastMixtureBoundedHammingGraphDist, 3},
     {"_Haplotypical_fastBoundedHammingGraphDist", (DL_FUNC) &_Haplotypical_fastBoundedHammingGraphDist, 3},
     {"_Haplotypical_makeSequenceHammingGraph", (DL_FUNC) &_Haplotypical_makeSequenceHammingGraph, 3},
     {"_Haplotypical_fastCloseHammingPair", (DL_FUNC) &_Haplotypical_fastCloseHammingPair, 3},

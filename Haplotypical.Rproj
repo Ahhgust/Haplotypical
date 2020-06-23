@@ -14,8 +14,8 @@ LaTeX: pdfLaTeX
 
 BuildType: Package
 PackageUseDevtools: Yes
-PackageInstallArgs: --no-multiarch --with-keep.source -std=c++11
-PackageBuildArgs: --no-multiarch --with-keep.source -std=c++11
-PackageBuildBinaryArgs: --no-multiarch --with-keep.source -std=c++11
-PackageCheckArgs: --no-multiarch --with-keep.source -std=c++11
+PackageInstallArgs: --no-multiarch
+PackageBuildArgs: --no-multiarch
+PackageBuildBinaryArgs: --no-multiarch
+PackageCheckArgs: --no-multiarch
 PackageRoxygenize: rd,collate,namespace,vignette

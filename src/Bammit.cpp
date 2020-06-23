@@ -17,6 +17,11 @@ using namespace std;
 #define POSITIVE_STRAND 1
 #define NEGATIVE_STRAND 2
 
+
+
+
+//[[Rcpp::plugins(cpp11)]]
+
 #define DELIM ";"
 
 
@@ -40,13 +45,14 @@ Rcpp::IntegerVector
 fastBoundedHammingRange1NN(Rcpp::StringVector umis, Rcpp::IntegerVector counts, int tolerance=0) {
   int c, nSeqs = umis.size();
   
+  
   if (nSeqs != counts.size())
     throw Rcpp::exception("Input vector sizes do not match.");
 
   if (nSeqs==0)
     return R_NilValue;
   
-    
+
   IntegerVector dists( nSeqs );  
 
   dists[0]=0;
@@ -95,7 +101,7 @@ fastBoundedHammingRange1NN(Rcpp::StringVector umis, Rcpp::IntegerVector counts, 
     }
       
       
-    
+      
   }
   
       
@@ -103,7 +109,6 @@ fastBoundedHammingRange1NN(Rcpp::StringVector umis, Rcpp::IntegerVector counts, 
 }
 
 
-// [[Rcpp::plugins(cpp11)]]
 
 // helper function. should use a LUT, but this may be fast enough...
 // each character gets its own bit
@@ -119,6 +124,138 @@ getEncoding(const char c) {
     return 0x8;
   return 0x10;
 }
+
+
+
+// from: https://stackoverflow.com/questions/15301885/calculate-value-of-n-choose-k
+// recursive solution to n choose k
+int
+choosey(int n, int k) {
+  if (k==0)
+    return 1;
+  
+  
+  return (n * choosey(n - 1, k - 1)) / k;
+}
+
+
+
+//' Search a MIXTURE (strings) vs a Hamming graph
+//'
+//' Returns graph distances 
+//' in particular, the distance of each combination of sequences (toCompare)
+//' to the graph using the Hamming distance
+//' 
+//'
+//' @param hammingGraph (string (singular) from makeSequenceHammingGraph)
+//' @param mixture (vector of strings; must be over set {ACGT}; )
+//' @param nInMix (the number of individuals in the mixture; if 2, all combinations of 2 (mixture) are considered; if 3, all combinations of 3... )
+//' 
+//' @export
+// [[Rcpp::export]]
+Rcpp::List
+fastMixtureBoundedHammingGraphDist(Rcpp::String hammingGraph, Rcpp::StringVector haplotypes, int nInMix) {
+    
+  int k, nSeqs = haplotypes.size();
+  int nCombs = choosey(nSeqs, nInMix);
+  
+  IntegerVector dists( nCombs ); 
+  IntegerMatrix combos( nCombs, nInMix);
+  
+  const char *c;
+  std::string refGraph = hammingGraph;
+    
+  char b,d;
+
+  // controls the combinations of individualss
+  std::vector<int> lims(nInMix); // the max value at each index.
+  std::vector<int> idx(nInMix); // gives the indexes in toCompare that are to, well, be compared!
+  
+  std::string haplotypesMixed( refGraph.size()+1, '\0' );
+  
+  // 0,1,2==idx
+  for (int i =0; i < nInMix; ++i) {
+    idx[i] = i;
+    lims[ nInMix - i - 1] = nSeqs-i-1;
+  }
+  int i,j, errs;
+  k=0;
+
+  while (true) {
+    
+    // do a bitwise OR over all of the nucleotides in the mixture
+    for (i = 0; i < nInMix; ++i) {
+      // record the pairwise combination (index)
+      combos[k*nInMix+i] = idx[i] + 1;// use one-based indexing when referring to string indexes...
+      
+      std::string foo = as<std::string>(haplotypes[ idx[i] ]);
+      c = foo.c_str();
+      j=0;
+      while (*c) {
+        b = getEncoding(*c);
+        if (i==0)
+          haplotypesMixed[j] = b;
+        else
+          haplotypesMixed[j] |= b;
+       
+        ++j;
+        ++c;
+      }
+    }
+    
+    errs = 0;
+    for (i =0 ; i < refGraph.size(); ++i) {
+      b = haplotypesMixed[i];
+      d = refGraph[i];
+      // sum can be 0,1,2
+      // 1 -> nucleotide seen in one and not the other
+      // 0 (not seen in either, is ok)
+      // 2 ( seen in both; also ok)
+      
+      if ( (b & 0x1) + (d&0x1) != 1) //A
+        ++errs;
+      if ( (b & 0x2) + (d&0x2) != 1) //C
+        ++errs;
+      if ( (b & 0x4) + (d&0x4) != 1) //G
+        ++errs;
+      if ( (b & 0x8) + (d&0x8) != 1) //T
+        ++errs;
+
+    }
+    dists[k]=errs;
+    ++k;
+    
+
+    // admittedly annoying code
+    // let's me do an arbitrarily nested for loop
+    j = nInMix-1;
+    
+    ++idx[j];
+    if (idx[j] <= lims[j]) // common case; just iterate the LSD
+      continue;
+    
+    while( j >= 0 && idx[j] >= lims[j])
+      --j;
+    
+    if (j<0) // no more iterations possible.
+      break;
+    
+    ++idx[j];
+    while( j < nInMix-1) {
+       idx[j+1] = idx[j] +1;
+      ++j;
+    }
+  }
+  List ret;
+  ret["distances"] = dists;
+  ret["indexes"] = combos;
+  return ret;
+}
+
+
+
+
+
 
 //' Search a Hamming graph
 //'
@@ -370,12 +507,12 @@ cigar2op(const char *cig, int &size, int &op) {
   return cig+1;
 }
 
-//' this parses a cigar string and an interval (positions 5-100 in the *genome* say)
-//' and returns whether or not the interval exists in the string 
-//' AND it fills out substringStart and substringStop with the substring
-//' positions of said intervals in half-open coordinates.
-//' half-open allows for 0-length intervals to be assessed 
-//' (e.g., insertions that are polymorphic in populations and not found in the queried string)
+// this parses a cigar string and an interval (positions 5-100 in the *genome* say)
+// and returns whether or not the interval exists in the string 
+// AND it fills out substringStart and substringStop with the substring
+// positions of said intervals in half-open coordinates.
+// half-open allows for 0-length intervals to be assessed 
+// (e.g., insertions that are polymorphic in populations and not found in the queried string)
 bool
 getIntervals(const char *ciggy, int queryStart, int queryStop, int refOffset, 
              int &substringStart, int &substringStop) {
